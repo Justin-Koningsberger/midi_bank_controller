@@ -1,22 +1,18 @@
 class Controller
-  attr_reader :last_input, :blacklist, :chrome_state, :testing
+  attr_reader :chrome_state, :testing
 
   PANEL = %w{chrome}
 
   def initialize(testing:)
+    @lock = Mutex.new
     @testing = testing
     @chrome_state = :pages
-    @last_input = Time.now.to_f
-    #@blacklist = ['w', 'number mode on', 'b', 'k', 'j', 'Up', 'Down', 'Page_Down', 'Page_Up'].flatten.map {|n| "xdotool key #{n}"}
-    @blacklist = ['w', 'number mode on', 'b', 'k', 'j', 'Up', 'Down'].flatten.map {|n| "xdotool key #{n}"}
   end
 
   def process value
     begin
       #binding.pry
-      result = chrome_panel(value)
-      @last_input = Time.now.to_f unless blacklist.include?(result)
-      result
+      chrome_panel(value)
     rescue => e
       puts e.inspect
       puts e.backtrace.join("\n")
@@ -35,7 +31,22 @@ class Controller
       when 2
         xdo_key "Control_L+Alt_L+r"
       when 3
-        xdo_key "Page_Up"
+        return "Waiting for key up" if @lock.locked?
+        @lock.lock
+        Thread.abort_on_exception = true
+        @thr = Thread.new do |thread|
+          started_at = Time.now
+          result = :unchanged_result!
+          if @lock.locked?
+            sleep 0.5
+          end
+          "We did stuff"
+          result
+        end
+        :started_thread
+      when 4
+        @lock.unlock
+        @thr.value
       when 5
         xdo_key "Page_Down"
       end

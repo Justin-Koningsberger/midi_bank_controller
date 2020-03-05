@@ -2,19 +2,19 @@ require 'unimidi'
 require 'pp'
 require 'pry'
 
-# # patch
-# module AlsaRawMIDI
-#   class Input
-#     def gets
-#       until enqueued_messages?
-#         sleep 0.01
-#       end
-#       msgs = enqueued_messages
-#       @pointer = @buffer.length
-#       msgs
-#     end
-#   end
-# end
+# patch
+module AlsaRawMIDI
+  class Input
+    def gets
+      until enqueued_messages?
+        sleep 0.01
+      end
+      msgs = enqueued_messages
+      @pointer = @buffer.length
+      msgs
+    end
+  end
+end
 
 class Reader
   def initialize
@@ -40,13 +40,15 @@ class Reader
           puts e.backtrace
         end
         data = @input.gets_data
+        puts "---------------------"
         puts "\n" + data.inspect
+        puts "---------------------"
         # data[0] == 192: button. data[0] == 176: wah pedal
         if data[0] == 176
           raw =  data[1] || 0
           if (Time.now.to_f - @controller.last_input) > 0.4
             f.puts raw
-            puts data
+            puts "data: #{data}"
             @controller.process(raw)
           end
         end
