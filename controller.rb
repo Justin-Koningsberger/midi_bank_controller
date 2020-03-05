@@ -35,12 +35,20 @@ class Controller
         @lock.lock
         Thread.abort_on_exception = true
         @thr = Thread.new do |thread|
-          started_at = Time.now
-          result = :unchanged_result!
-          if @lock.locked?
-            sleep 0.5
+          started_at = Time.now.to_f
+          result = 'result: '
+          while @lock.locked?
+            repeat_interval = 0.5
+            repeat_threshold = 0.99
+            long_press = (Time.now.to_f - started_at) > repeat_threshold
+            sleep long_press ? repeat_interval : 0.1
+            if long_press
+              result += ", #{xdo_key 'Up'}"
+            end
           end
-          "We did stuff"
+          if (Time.now.to_f - started_at) <= repeat_threshold
+            result += ", #{xdo_key 'Page_Up'}"
+          end
           result
         end
         :started_thread
@@ -50,6 +58,7 @@ class Controller
       when 5
         xdo_key "Page_Down"
       end
+
     elsif @chrome_state == :tabs
       case value
         when 2

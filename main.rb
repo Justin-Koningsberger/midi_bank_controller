@@ -46,11 +46,9 @@ class Reader
         # data[0] == 192: button. data[0] == 176: wah pedal
         if data[0] == 176
           raw =  data[1] || 0
-          if (Time.now.to_f - @controller.last_input) > 0.4
-            f.puts raw
-            puts "data: #{data}"
-            @controller.process(raw)
-          end
+          f.puts raw
+          puts "data: #{data}"
+          @controller.process(raw)
         end
       end
     end
