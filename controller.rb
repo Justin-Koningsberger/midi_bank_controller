@@ -35,28 +35,23 @@ class Controller
         @lock.lock
         Thread.abort_on_exception = true
         @thr = Thread.new do |thread|
-          started_at = Time.now.to_f
-          result = 'result: '
-          while @lock.locked?
-            repeat_interval = 0.5
-            repeat_threshold = 0.99
-            long_press = (Time.now.to_f - started_at) > repeat_threshold
-            sleep long_press ? repeat_interval : 0.1
-            if long_press
-              result += ", #{xdo_key 'Up'}"
-            end
-          end
-          if (Time.now.to_f - started_at) <= repeat_threshold
-            result += ", #{xdo_key 'Page_Up'}"
-          end
-          result
+          long_press('Up', 'Page_Up')
         end
         :started_thread
       when 4
         @lock.unlock
         @thr.value
       when 5
-        xdo_key "Page_Down"
+        return "Waiting for key up" if @lock.locked?
+        @lock.lock
+        Thread.abort_on_exception = true
+        @thr = Thread.new do |thread|
+          long_press('Down', 'Page_Down')
+        end
+        :started_thread
+      when 6
+        @lock.unlock
+        @thr.value
       end
 
     elsif @chrome_state == :tabs
@@ -69,6 +64,24 @@ class Controller
           xdo_key 'Control_L+F4'
       end
     end  
+  end
+
+  def long_press(short, long)
+    started_at = Time.now.to_f
+    result = 'result: '
+    while @lock.locked?
+      repeat_interval = 0.5
+      repeat_threshold = 0.99
+      long_press = (Time.now.to_f - started_at) > repeat_threshold
+      sleep long_press ? repeat_interval : 0.1
+      if long_press
+        result += ", #{xdo_key short}"
+      end
+    end
+    if (Time.now.to_f - started_at) <= repeat_threshold
+      result += ", #{xdo_key long}"
+    end
+    result
   end
 
   def _bank value
