@@ -18,22 +18,23 @@ end
 def test_chrome_panel
   controller = Controller.new(testing: true)
   @chrome_outputs = []
-  @chrome_fixtures = [:tabs,
-                      :pages,
-                      'xdotool key Control_L+Alt_L+r',
-                      :started_thread,
-                      'result: , xdotool key Page_Up',
-                      :started_thread,
-                      'result: , xdotool key Page_Down',
-                      :tabs,
-                      'xdotool key Control_L+Shift_L+Tab',
-                      'xdotool key Control_L+Tab',
-                      'xdotool key Control_L+F4',
-                      :pages,
-                      :started_thread,
-                      'result: , xdotool key Up, xdotool key Up',
-                      :started_thread,
-                      'result: , xdotool key Down, xdotool key Down']
+  @chrome_fixtures =
+    [:tabs,
+     :pages,
+     'xdotool key Control_L+Alt_L+r',
+     :started_thread,
+     'result:  xdotool key Page_Up',
+     :started_thread,
+     'result:  xdotool key Page_Down',
+     :tabs,
+     'xdotool key Control_L+Shift_L+Tab',
+     'xdotool key Control_L+Tab',
+     'xdotool key Control_L+F4',
+     :pages,
+     :started_thread,
+     'result:  xdotool key Up xdotool key Up',
+     :started_thread,
+     'result:  xdotool key Down xdotool key Down']
 
   @chrome_outputs << controller.process(1)
   @chrome_outputs << controller.process(0) # to pages
@@ -63,21 +64,21 @@ def test_gnome_panel
   @gnome_outputs = []
   @gnome_fixtures =
     [:started_thread,
-     'xdotool key Return',
+     'result:  xdotool search --onlyvisible --class --classname --name VirtualBox windowactivate',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name chromium windowactivate',
+     'result:  xdotool search --onlyvisible --class --classname --name terminal windowactivate',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name Firefox windowactivate',
+     'result:  xdotool search --onlyvisible --class --classname --name thunderbird windowactivate',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name sublime windowactivate',
+     'result:  xdotool search --onlyvisible --class --classname --name slack windowactivate',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name VirtualBox windowactivate',
+     'result:  xdotool key Return',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name terminal windowactivate',
+     'result:  xdotool search --onlyvisible --class --classname --name chromium windowactivate',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name thunderbird windowactivate',
+     'result:  xdotool search --onlyvisible --class --classname --name Firefox windowactivate',
      :started_thread,
-     'xdotool search --onlyvisible --class --classname --name slack windowactivate']
+     'result:  xdotool search --onlyvisible --class --classname --name sublime windowactivate']
 
   @gnome_outputs << controller.process(7)
   sleep 0.1
@@ -93,16 +94,16 @@ def test_gnome_panel
   @gnome_outputs << controller.process(14) # Short presses
 
   @gnome_outputs << controller.process(7)
-  sleep 1.0
+  sleep 1.1
   @gnome_outputs << controller.process(8)
   @gnome_outputs << controller.process(9)
-  sleep 1.0
+  sleep 1.1
   @gnome_outputs << controller.process(10)
   @gnome_outputs << controller.process(11)
-  sleep 1.0
+  sleep 1.1
   @gnome_outputs << controller.process(12)
   @gnome_outputs << controller.process(13)
-  sleep 1.0
+  sleep 1.1
   @gnome_outputs << controller.process(14) # long presses
 
   puts '----------------------------'

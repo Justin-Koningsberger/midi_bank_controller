@@ -33,7 +33,7 @@ class Controller
         @lock.lock
         Thread.abort_on_exception = true
         @thr = Thread.new do |_thread|
-          long_press('Up', 'Page_Up')
+          long_press('xdo_key', 'Up', 'xdo_key', 'Page_Up', 0.5)
         end
         :started_thread
       when 4
@@ -44,7 +44,7 @@ class Controller
         @lock.lock
         Thread.abort_on_exception = true
         @thr = Thread.new do |_thread|
-          long_press('Down', 'Page_Down')
+          long_press('xdo_key', 'Down', 'xdo_key', 'Page_Down', 0.5)
         end
         :started_thread
       when 6
@@ -75,20 +75,7 @@ class Controller
       @lock.lock
       Thread.abort_on_exception = true
       @thr = Thread.new do |_thread|
-        started_at = Time.now.to_f
-        repeat_threshold = 0.99
-        result = ''
-        while @lock.locked?
-          long_press = (Time.now.to_f - started_at) > repeat_threshold
-          sleep 0.2 if long_press
-          if long_press
-            result = activate_window((GNOME_WINDOWS[value + 1]).to_s).to_s
-          end
-        end
-        if (Time.now.to_f - started_at) <= repeat_threshold
-          result = (xdo_key 'Return').to_s
-        end
-        result
+        long_press('xdo_key', 'Return', 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
       end
       :started_thread
     when 1
@@ -99,7 +86,7 @@ class Controller
       @lock.lock
       Thread.abort_on_exception = true
       @thr = Thread.new do |_thread|
-        long_press_activate_window(GNOME_WINDOWS[value], GNOME_WINDOWS[value + 1])
+        long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
       end
       :started_thread
     when 3
@@ -110,7 +97,7 @@ class Controller
       @lock.lock
       Thread.abort_on_exception = true
       @thr = Thread.new do |_thread|
-        long_press_activate_window(GNOME_WINDOWS[value], GNOME_WINDOWS[value + 1])
+        long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
       end
       :started_thread
     when 5
@@ -121,7 +108,7 @@ class Controller
       @lock.lock
       Thread.abort_on_exception = true
       @thr = Thread.new do |_thread|
-        long_press_activate_window(GNOME_WINDOWS[value], GNOME_WINDOWS[value + 1])
+        long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
       end
       :started_thread
     when 7
@@ -130,33 +117,18 @@ class Controller
     end
   end
 
-  def long_press_activate_window(window_x, window_y)
+  def long_press(command_s, short, command_l, long, interval)
     started_at = Time.now.to_f
-    result = ''
+    result = 'result: '
+    repeat_interval = interval
     repeat_threshold = 0.99
     while @lock.locked?
       long_press = (Time.now.to_f - started_at) > repeat_threshold
-      sleep 0.2 if long_press
-      result = (activate_window window_y).to_s if long_press
-    end
-    if (Time.now.to_f - started_at) <= repeat_threshold
-      result = (activate_window window_x).to_s
-    end
-    result
-  end
-
-  def long_press(short, long)
-    started_at = Time.now.to_f
-    result = 'result: '
-    while @lock.locked?
-      repeat_interval = 0.5
-      repeat_threshold = 0.99
-      long_press = (Time.now.to_f - started_at) > repeat_threshold
       sleep long_press ? repeat_interval : 0.1
-      result += ", #{xdo_key short}" if long_press
+      result += " #{send command_s, short}" if long_press
     end
     if (Time.now.to_f - started_at) <= repeat_threshold
-      result += ", #{xdo_key long}"
+      result += " #{send command_l, long}"
     end
     result
   end
