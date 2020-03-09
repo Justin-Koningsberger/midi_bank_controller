@@ -1,7 +1,7 @@
 class Controller
   attr_reader :chrome_state, :testing
 
-  PANEL = %w{chrome}
+  PANEL = %w[chrome].freeze
 
   def initialize(testing:)
     @lock = Mutex.new
@@ -9,15 +9,15 @@ class Controller
     @chrome_state = :pages
   end
 
-  def process value
-    if (0..6) === value
-      chrome_bank(value)
-    elsif (7..14) === value
-      gnome_bank(value)
+  def process(value)
+    if (0..6).cover?(value)
+      chrome_panel(value)
+    elsif (7..14).cover?(value)
+      gnome_panel(value)
     end
   end
 
-  def chrome_bank value
+  def chrome_panel(value)
     if value == 0
       puts 'Pages'
       @chrome_state = :pages
@@ -27,12 +27,12 @@ class Controller
     elsif @chrome_state == :pages
       case value
       when 2
-        xdo_key "Control_L+Alt_L+r"
+        xdo_key 'Control_L+Alt_L+r'
       when 3
-        return "Waiting for key up" if @lock.locked?
+        return 'Waiting for key up' if @lock.locked?
         @lock.lock
         Thread.abort_on_exception = true
-        @thr = Thread.new do |thread|
+        @thr = Thread.new do |_thread|
           long_press('Up', 'Page_Up')
         end
         :started_thread
@@ -40,10 +40,10 @@ class Controller
         @lock.unlock
         @thr.value
       when 5
-        return "Waiting for key up" if @lock.locked?
+        return 'Waiting for key up' if @lock.locked?
         @lock.lock
         Thread.abort_on_exception = true
-        @thr = Thread.new do |thread|
+        @thr = Thread.new do |_thread|
           long_press('Down', 'Page_Down')
         end
         :started_thread
@@ -54,27 +54,27 @@ class Controller
 
     elsif @chrome_state == :tabs
       case value
-        when 2
-          xdo_key 'Control_L+Shift_L+Tab'
-        when 3
-          xdo_key 'Control_L+Tab'
-        when 5
-          xdo_key 'Control_L+F4'
+      when 2
+        xdo_key 'Control_L+Shift_L+Tab'
+      when 3
+        xdo_key 'Control_L+Tab'
+      when 5
+        xdo_key 'Control_L+F4'
       end
     end
   end
 
-  GNOME_WINDOWS = [nil, :VirtualBox, :chromium, :terminal, :Firefox, :thunderbird, :sublime, :slack]
+  GNOME_WINDOWS = [nil, :VirtualBox, :chromium, :terminal, :Firefox, :thunderbird, :sublime, :slack].freeze
 
-  def gnome_bank value
+  def gnome_panel(value)
     value -= 7 # align value with GNOME_WINDOWS
 
     case value
     when 0
-      return "Waiting for key up" if @lock.locked?
+      return 'Waiting for key up' if @lock.locked?
       @lock.lock
       Thread.abort_on_exception = true
-      @thr = Thread.new do |thread|
+      @thr = Thread.new do |_thread|
         started_at = Time.now.to_f
         repeat_threshold = 0.99
         result = ''
@@ -82,11 +82,11 @@ class Controller
           long_press = (Time.now.to_f - started_at) > repeat_threshold
           sleep 0.2 if long_press
           if long_press
-            result = "#{activate_window("#{GNOME_WINDOWS[value + 1]}")}"
+            result = activate_window((GNOME_WINDOWS[value + 1]).to_s).to_s
           end
         end
         if (Time.now.to_f - started_at) <= repeat_threshold
-          result = "#{xdo_key 'Return'}"
+          result = (xdo_key 'Return').to_s
         end
         result
       end
@@ -95,10 +95,10 @@ class Controller
       @lock.unlock
       @thr.value
     when 2
-      return "Waiting for key up" if @lock.locked?
+      return 'Waiting for key up' if @lock.locked?
       @lock.lock
       Thread.abort_on_exception = true
-      @thr = Thread.new do |thread|
+      @thr = Thread.new do |_thread|
         long_press_activate_window(GNOME_WINDOWS[value], GNOME_WINDOWS[value + 1])
       end
       :started_thread
@@ -106,10 +106,10 @@ class Controller
       @lock.unlock
       @thr.value
     when 4
-      return "Waiting for key up" if @lock.locked?
+      return 'Waiting for key up' if @lock.locked?
       @lock.lock
       Thread.abort_on_exception = true
-      @thr = Thread.new do |thread|
+      @thr = Thread.new do |_thread|
         long_press_activate_window(GNOME_WINDOWS[value], GNOME_WINDOWS[value + 1])
       end
       :started_thread
@@ -117,10 +117,10 @@ class Controller
       @lock.unlock
       @thr.value
     when 6
-      return "Waiting for key up" if @lock.locked?
+      return 'Waiting for key up' if @lock.locked?
       @lock.lock
       Thread.abort_on_exception = true
-      @thr = Thread.new do |thread|
+      @thr = Thread.new do |_thread|
         long_press_activate_window(GNOME_WINDOWS[value], GNOME_WINDOWS[value + 1])
       end
       :started_thread
@@ -137,12 +137,10 @@ class Controller
     while @lock.locked?
       long_press = (Time.now.to_f - started_at) > repeat_threshold
       sleep 0.2 if long_press
-      if long_press
-        result = "#{activate_window window_y}"
-      end
+      result = (activate_window window_y).to_s if long_press
     end
     if (Time.now.to_f - started_at) <= repeat_threshold
-      result = "#{activate_window window_x}"
+      result = (activate_window window_x).to_s
     end
     result
   end
@@ -155,9 +153,7 @@ class Controller
       repeat_threshold = 0.99
       long_press = (Time.now.to_f - started_at) > repeat_threshold
       sleep long_press ? repeat_interval : 0.1
-      if long_press
-        result += ", #{xdo_key short}"
-      end
+      result += ", #{xdo_key short}" if long_press
     end
     if (Time.now.to_f - started_at) <= repeat_threshold
       result += ", #{xdo_key long}"
@@ -169,16 +165,7 @@ class Controller
     xdotool("search --onlyvisible --class --classname --name #{program} windowactivate")
   end
 
-  def _bank value
-    'bank not found'
-  end
-
-  def wmiir str
-    `DISPLAY=':0.0' wmiir xwrite #{str}`
-    "wmiir xwrite #{str}"
-  end
-
-  def xdo_key key
+  def xdo_key(key)
     case @testing
     when false
       `DISPLAY=':0.0' xdotool key #{key}`
@@ -188,13 +175,8 @@ class Controller
       "xdotool key #{key}"
     end
   end
-  
-  def xdo_type str
-    `DISPLAY=':0.0' xdotool type '#{str}'`
-    "xdotool type '#{str}'"
-  end
 
-  def xdotool str
+  def xdotool(str)
     case @testing
     when false
       `DISPLAY=':0.0' xdotool #{str}`

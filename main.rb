@@ -6,9 +6,7 @@ require 'pry'
 module AlsaRawMIDI
   class Input
     def gets
-      until enqueued_messages?
-        sleep 0.01
-      end
+      sleep 0.01 until enqueued_messages?
       msgs = enqueued_messages
       @pointer = @buffer.length
       msgs
@@ -30,7 +28,7 @@ class Reader
   end
 
   def start_loop
-    File.open('log','w') do |f|
+    File.open('log', 'w') do |f|
       f.sync = true
       loop do
         begin
@@ -40,16 +38,15 @@ class Reader
           puts e.backtrace
         end
         data = @input.gets_data
-        puts "---------------------"
+        puts '---------------------'
         puts "\n" + data.inspect
-        puts "---------------------"
+        puts '---------------------'
         # data[0] == 192: button. data[0] == 176: wah pedal
-        if data[0] == 176
-          raw =  data[1] || 0
-          f.puts raw
-          puts "data: #{data}"
-          @controller.process(raw)
-        end
+        next unless data[0] == 176
+        raw =  data[1] || 0
+        f.puts raw
+        puts "data: #{data}"
+        @controller.process(raw)
       end
     end
   end
