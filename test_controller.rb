@@ -163,19 +163,18 @@ def test_pluralsight_panel
   puts '----------------------------'
 end
 
-puts '----------------------------'
+puts '***Chrome panel test***'
 test_chrome_panel
-
 expect_equal(@chrome_fixtures, @chrome_outputs)
 
+puts '***Emailreader panel test'
 test_emailreader_panel
-
 expect_equal(@emailreader_fixtures, @emailreader_outputs)
 
+puts '***Gnome panel test'
 test_gnome_panel
-
 expect_equal(@gnome_fixtures, @gnome_outputs)
 
+puts '***Pluralsight panel test'
 test_pluralsight_panel
-
 expect_equal(@pluralsight_fixtures, @pluralsight_outputs)
