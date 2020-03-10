@@ -60,6 +60,13 @@ def test_chrome_panel
   puts '----------------------------'
 end
 
+def test_emailreader_panel
+  controller = Controller.new(testing: true)
+  @emailreader_outputs = []
+  @emailreader_fixtures = []
+  puts '----------------------------'
+end
+
 def test_gnome_panel
   controller = Controller.new(testing: true)
   @gnome_outputs = []
@@ -106,7 +113,28 @@ def test_gnome_panel
   @gnome_outputs << controller.process(13)
   sleep 1.1
   @gnome_outputs << controller.process(14) # long presses
+  puts '----------------------------'
+end
 
+def test_pluralsight_panel
+  controller = Controller.new(testing: true)
+  @pluralsight_outputs = []
+  @pluralsight_fixtures = 
+    ['xdotool key Left',
+     'xdotool key KP_Space',
+     'xdotool key Right',
+     :alt_state,
+     'xdotool key f',
+     'xdotool key Return',
+     :navigate]
+
+  @pluralsight_outputs << controller.process(17)
+  @pluralsight_outputs << controller.process(18)
+  @pluralsight_outputs << controller.process(19)
+  @pluralsight_outputs << controller.process(16) # switch modes
+  @pluralsight_outputs << controller.process(17)
+  @pluralsight_outputs << controller.process(18)
+  @pluralsight_outputs << controller.process(15) # switch modes
   puts '----------------------------'
 end
 
@@ -118,3 +146,7 @@ expect_equal(@chrome_fixtures, @chrome_outputs)
 test_gnome_panel
 
 expect_equal(@gnome_fixtures, @gnome_outputs)
+
+test_pluralsight_panel
+
+expect_equal(@pluralsight_fixtures, @pluralsight_outputs)

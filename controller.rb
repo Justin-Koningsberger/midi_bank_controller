@@ -7,6 +7,7 @@ class Controller
     @lock = Mutex.new
     @testing = testing
     @chrome_state = :pages
+    @pluralsight_state = :navigate
   end
 
   def process(value)
@@ -14,6 +15,8 @@ class Controller
       chrome_panel(value)
     elsif (7..14).cover?(value)
       gnome_panel(value)
+    elsif (15..19).cover?(value)
+      pluralsight_panel(value)
     end
   end
 
@@ -83,6 +86,36 @@ class Controller
     when 7
       @lock.unlock
       @thr.value
+    end
+  end
+
+  def pluralsight_panel(value)
+    value -= 15
+
+    if value == 0
+      puts 'Navigate'
+      @pluralsight_state = :navigate
+    elsif value == 1
+      puts 'Alt state'
+      @pluralsight_state = :alt_state
+    elsif @pluralsight_state == :navigate
+      case value
+      when 2
+        xdo_key 'Left'
+      when 3
+        xdo_key 'KP_Space'
+      when 4 
+        xdo_key 'Right'
+      end
+    elsif @pluralsight_state == :alt_state
+      case value
+      when 2
+        xdo_key 'f'
+      when 3
+        xdo_key 'Return'
+      when 4
+        puts 'This button is not used in alt state'
+      end
     end
   end
 
