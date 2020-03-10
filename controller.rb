@@ -29,29 +29,18 @@ class Controller
       when 2
         xdo_key 'Control_L+Alt_L+r'
       when 3
-        return 'Waiting for key up' if @lock.locked?
-        @lock.lock
-        Thread.abort_on_exception = true
-        @thr = Thread.new do |_thread|
-          long_press('xdo_key', 'Up', 'xdo_key', 'Page_Up', 0.5)
-        end
+        setup_thread('xdo_key', 'Page_Up', 'xdo_key', 'Up', 0.5)
         :started_thread
       when 4
         @lock.unlock
         @thr.value
       when 5
-        return 'Waiting for key up' if @lock.locked?
-        @lock.lock
-        Thread.abort_on_exception = true
-        @thr = Thread.new do |_thread|
-          long_press('xdo_key', 'Down', 'xdo_key', 'Page_Down', 0.5)
-        end
+        setup_thread('xdo_key', 'Page_Down', 'xdo_key', 'Down', 0.5)
         :started_thread
       when 6
         @lock.unlock
         @thr.value
       end
-
     elsif @chrome_state == :tabs
       case value
       when 2
@@ -71,45 +60,25 @@ class Controller
 
     case value
     when 0
-      return 'Waiting for key up' if @lock.locked?
-      @lock.lock
-      Thread.abort_on_exception = true
-      @thr = Thread.new do |_thread|
-        long_press('xdo_key', 'Return', 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
-      end
+      setup_thread('xdo_key', 'Return', 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
       :started_thread
     when 1
       @lock.unlock
       @thr.value
     when 2
-      return 'Waiting for key up' if @lock.locked?
-      @lock.lock
-      Thread.abort_on_exception = true
-      @thr = Thread.new do |_thread|
-        long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
-      end
+      setup_thread('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
       :started_thread
     when 3
       @lock.unlock
       @thr.value
     when 4
-      return 'Waiting for key up' if @lock.locked?
-      @lock.lock
-      Thread.abort_on_exception = true
-      @thr = Thread.new do |_thread|
-        long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
-      end
+      setup_thread('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
       :started_thread
     when 5
       @lock.unlock
       @thr.value
     when 6
-      return 'Waiting for key up' if @lock.locked?
-      @lock.lock
-      Thread.abort_on_exception = true
-      @thr = Thread.new do |_thread|
-        long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.3)
-      end
+      setup_thread('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
       :started_thread
     when 7
       @lock.unlock
@@ -125,12 +94,21 @@ class Controller
     while @lock.locked?
       long_press = (Time.now.to_f - started_at) > repeat_threshold
       sleep long_press ? repeat_interval : 0.1
-      result += " #{send command_s, short}" if long_press
+      result += " #{send command_l, long}" if long_press
     end
     if (Time.now.to_f - started_at) <= repeat_threshold
-      result += " #{send command_l, long}"
+      result += " #{send command_s, short}"
     end
     result
+  end
+
+  def setup_thread(command_s, short, command_l, long, interval)
+    return 'Waiting for key up' if @lock.locked?
+    @lock.lock
+    Thread.abort_on_exception = true
+    @thr = Thread.new do |_thread|
+      long_press(command_s, short, command_l, long, interval)
+    end
   end
 
   def activate_window(program)

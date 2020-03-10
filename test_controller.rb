@@ -2,6 +2,7 @@ require 'unimidi'
 require 'pry'
 require 'pp'
 require './controller.rb'
+require 'diffy'
 
 def expect_equal(fixture, result)
   if fixture == result
@@ -10,7 +11,7 @@ def expect_equal(fixture, result)
   else
     puts 'oh no..'
     puts '----------------------------'
-    pp result
+    puts Diffy::Diff.new(fixture, result).to_s(:color)
     raise 'OH no'
   end
 end
@@ -64,21 +65,21 @@ def test_gnome_panel
   @gnome_outputs = []
   @gnome_fixtures =
     [:started_thread,
-     'result:  xdotool search --onlyvisible --class --classname --name VirtualBox windowactivate',
-     :started_thread,
-     'result:  xdotool search --onlyvisible --class --classname --name terminal windowactivate',
-     :started_thread,
-     'result:  xdotool search --onlyvisible --class --classname --name thunderbird windowactivate',
-     :started_thread,
-     'result:  xdotool search --onlyvisible --class --classname --name slack windowactivate',
-     :started_thread,
      'result:  xdotool key Return',
      :started_thread,
      'result:  xdotool search --onlyvisible --class --classname --name chromium windowactivate',
      :started_thread,
      'result:  xdotool search --onlyvisible --class --classname --name Firefox windowactivate',
      :started_thread,
-     'result:  xdotool search --onlyvisible --class --classname --name sublime windowactivate']
+     'result:  xdotool search --onlyvisible --class --classname --name sublime windowactivate',
+      :started_thread,
+     'result:  xdotool search --onlyvisible --class --classname --name VirtualBox windowactivate',
+     :started_thread,
+     'result:  xdotool search --onlyvisible --class --classname --name terminal windowactivate',
+     :started_thread,
+     'result:  xdotool search --onlyvisible --class --classname --name thunderbird windowactivate',
+     :started_thread,
+     'result:  xdotool search --onlyvisible --class --classname --name slack windowactivate']
 
   @gnome_outputs << controller.process(7)
   sleep 0.1
