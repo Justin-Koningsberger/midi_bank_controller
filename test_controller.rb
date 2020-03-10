@@ -63,7 +63,32 @@ end
 def test_emailreader_panel
   controller = Controller.new(testing: true)
   @emailreader_outputs = []
-  @emailreader_fixtures = []
+  @emailreader_fixtures =
+    ['xdotool key Left',
+     'xdotool key Return',
+     :started_thread,
+     'result:  xdotool key Down',
+     :started_thread,
+     'result:  xdotool key Up',
+     :started_thread,
+     'result:  xdotool key Page_Down',
+     :started_thread,
+     'result:  xdotool key Page_Up']
+
+  @emailreader_outputs << controller.process(20)
+  @emailreader_outputs << controller.process(21)
+  @emailreader_outputs << controller.process(22)
+  sleep 0.1
+  @emailreader_outputs << controller.process(23) # short press
+  @emailreader_outputs << controller.process(24)
+  sleep 0.1
+  @emailreader_outputs << controller.process(25) # short press
+  @emailreader_outputs << controller.process(22)
+  sleep 1.1
+  @emailreader_outputs << controller.process(23) # long press
+  @emailreader_outputs << controller.process(24)
+  sleep 1.1
+  @emailreader_outputs << controller.process(25) # long press
   puts '----------------------------'
 end
 
@@ -79,7 +104,7 @@ def test_gnome_panel
      'result:  xdotool search --onlyvisible --class --classname --name Firefox windowactivate',
      :started_thread,
      'result:  xdotool search --onlyvisible --class --classname --name sublime windowactivate',
-      :started_thread,
+     :started_thread,
      'result:  xdotool search --onlyvisible --class --classname --name VirtualBox windowactivate',
      :started_thread,
      'result:  xdotool search --onlyvisible --class --classname --name terminal windowactivate',
@@ -119,7 +144,7 @@ end
 def test_pluralsight_panel
   controller = Controller.new(testing: true)
   @pluralsight_outputs = []
-  @pluralsight_fixtures = 
+  @pluralsight_fixtures =
     ['xdotool key Left',
      'xdotool key KP_Space',
      'xdotool key Right',
@@ -142,6 +167,10 @@ puts '----------------------------'
 test_chrome_panel
 
 expect_equal(@chrome_fixtures, @chrome_outputs)
+
+test_emailreader_panel
+
+expect_equal(@emailreader_fixtures, @emailreader_outputs)
 
 test_gnome_panel
 
