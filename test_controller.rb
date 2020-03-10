@@ -163,6 +163,39 @@ def test_pluralsight_panel
   puts '----------------------------'
 end
 
+def test_vimium_panel
+  controller = Controller.new(testing: true)
+  @vimium_outputs = []
+  @vimium_fixtures =
+    ['xdotool key f',
+     'LE',
+     'xdotool key f',
+     'ET']
+
+  @vimium_outputs << controller.process(27) # f pressed, wating for 4 numbers
+  @vimium_outputs << controller.process(26)
+  sleep 0.3
+  @vimium_outputs << controller.process(27) # 1
+  @vimium_outputs << controller.process(26)
+  sleep 1.5
+  @vimium_outputs << controller.process(27) # 2
+  @vimium_outputs << controller.process(32) # 0
+  @vimium_outputs << controller.process(28)
+  sleep 1.5
+  @vimium_outputs << controller.process(29) # 5
+  @vimium_outputs << controller.process(27) # f pressed, wating for 4 numbers
+  @vimium_outputs << controller.process(32) # 0
+  @vimium_outputs << controller.process(28)
+  sleep 1.5
+  @vimium_outputs << controller.process(29) # 5
+  @vimium_outputs << controller.process(26)
+  sleep 1.5
+  @vimium_outputs << controller.process(27) # 2
+  @vimium_outputs << controller.process(32) # 0
+
+  puts '----------------------------'
+end
+
 puts '***Chrome panel test***'
 test_chrome_panel
 expect_equal(@chrome_fixtures, @chrome_outputs)
@@ -178,3 +211,7 @@ expect_equal(@gnome_fixtures, @gnome_outputs)
 puts '***Pluralsight panel test'
 test_pluralsight_panel
 expect_equal(@pluralsight_fixtures, @pluralsight_outputs)
+
+puts '***Vimium panel test'
+test_vimium_panel
+expect_equal(@vimium_fixtures, @vimium_outputs)

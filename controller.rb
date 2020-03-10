@@ -14,17 +14,17 @@ class Controller
 
   def process(value)
     if (0..6).cover?(value)
+      @vimium_state = :browse
       chrome_panel(value)
-      @vimium_state = :browse
     elsif (7..14).cover?(value)
+      @vimium_state = :browse
       gnome_panel(value)
-      @vimium_state = :browse
     elsif (15..19).cover?(value)
+      @vimium_state = :browse
       pluralsight_panel(value)
-      @vimium_state = :browse
     elsif (20..25).cover?(value)
-      emailreader_panel(value)
       @vimium_state = :browse
+      emailreader_panel(value)
     elsif (26..32).cover?(value)
       vimium_panel(value)
     end
@@ -160,16 +160,16 @@ class Controller
       case value
       when 1
         puts 'Enter numbers now'
-        xdo_key 'f'
         @vimium_state = :get_four_numbers
+        xdo_key 'f'
       when 3
         puts 'Enter numbers now'
-        xdo_key 'F'
         @vimium_state = :get_four_numbers
+        xdo_key 'F'
       when 5
         puts 'Enter numbers now'
-        xdo_key 'H'
         @vimium_state = :get_four_numbers
+        xdo_key 'H'
       end
 
     elsif @vimium_state == :get_four_numbers
@@ -180,20 +180,24 @@ class Controller
       when 1 # button 1
         @lock.unlock
         @number_string += @thr.value
+        puts @thr.value
       when 2 # button 2
         setup_elp_thread('4', '5', '6', 1.0)
         :started_thread
       when 3 # button 2
         @lock.unlock
         @number_string += @thr.value
+        puts @thr.value
       when 4 # button 3
         setup_elp_thread('7', '8', '9', 1.0)
         :started_thread
       when 5 # button 3
         @lock.unlock
         @number_string += @thr.value
+        puts @thr.value
       when 6 # button 4
         @number_string += '0'
+        puts '0'
       end
 
       if @number_string.size == 4
