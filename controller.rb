@@ -1,8 +1,6 @@
 class Controller
   attr_reader :chrome_state, :testing
 
-  PANEL = %w[chrome].freeze
-
   def initialize(testing:)
     @lock = Mutex.new
     @testing = testing
@@ -154,19 +152,20 @@ class Controller
 
   def vimium_panel(value)
     value -= 26
+    result = ''
 
     if @vimium_state == :browse
       @number_string = ''
       case value
-      when 1
+      when 1 # button 1
         puts 'Enter numbers now'
         @vimium_state = :get_four_numbers
         xdo_key 'f'
-      when 3
+      when 3 # button 2
         puts 'Enter numbers now'
         @vimium_state = :get_four_numbers
         xdo_key 'F'
-      when 5
+      when 5 # button 3
         puts 'Enter numbers now'
         @vimium_state = :get_four_numbers
         xdo_key 'H'
@@ -176,33 +175,34 @@ class Controller
       case value
       when 0 # button 1
         setup_elp_thread('1', '2', '3', 1.0)
-        :started_thread
+        result = :started_thread
       when 1 # button 1
         @lock.unlock
-        @number_string += @thr.value
-        puts @thr.value
+        result = @thr.value
+        @number_string += result
       when 2 # button 2
         setup_elp_thread('4', '5', '6', 1.0)
-        :started_thread
+        result = :started_thread
       when 3 # button 2
         @lock.unlock
-        @number_string += @thr.value
-        puts @thr.value
+        result = @thr.value
+        @number_string += result
       when 4 # button 3
         setup_elp_thread('7', '8', '9', 1.0)
-        :started_thread
+        result = :started_thread
       when 5 # button 3
         @lock.unlock
-        @number_string += @thr.value
-        puts @thr.value
+        result = @thr.value
+        @number_string += result
       when 6 # button 4
-        @number_string += '0'
-        puts '0'
+        result = '0'
+        @number_string += result
       end
 
       if @number_string.size == 4
         process_numbers(@number_string)
       end
+      result
     end
   end
 

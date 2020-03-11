@@ -16,6 +16,18 @@ def expect_equal(fixture, result)
   end
 end
 
+def test_conversion
+  controller = Controller.new(testing: true)
+  @conversion_outputs = []
+  @conversion_fixtures = ['L', 'E', 'E', 'T', 'Z']
+
+  @conversion_outputs << controller.convert(12)
+  @conversion_outputs << controller.convert(5)
+  @conversion_outputs << controller.convert(5)
+  @conversion_outputs << controller.convert(20)
+  @conversion_outputs << controller.convert(26)
+end
+
 def test_chrome_panel
   controller = Controller.new(testing: true)
   @chrome_outputs = []
@@ -167,10 +179,21 @@ def test_vimium_panel
   controller = Controller.new(testing: true)
   @vimium_outputs = []
   @vimium_fixtures =
-    ['xdotool key f',
-     'LE',
-     'xdotool key f',
-     'ET']
+    ["xdotool key f",
+     :started_thread,
+     "1",
+     :started_thread,
+     "2",
+     "0",
+     :started_thread,
+     "5",
+     "xdotool key f",
+     "0",
+     :started_thread,
+     "5",
+     :started_thread,
+     "2",
+     "0"]
 
   @vimium_outputs << controller.process(27) # f pressed, wating for 4 numbers
   @vimium_outputs << controller.process(26)
@@ -195,6 +218,10 @@ def test_vimium_panel
 
   puts '----------------------------'
 end
+
+puts '***Conversion test'
+test_conversion
+expect_equal(@conversion_fixtures, @conversion_outputs)
 
 puts '***Chrome panel test***'
 test_chrome_panel
