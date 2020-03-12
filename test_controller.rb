@@ -89,18 +89,18 @@ def test_emailreader_panel
 
   @emailreader_outputs << controller.process(20)
   @emailreader_outputs << controller.process(21)
-  @emailreader_outputs << controller.process(22)
-  sleep 0.1
-  @emailreader_outputs << controller.process(23) # short press
   @emailreader_outputs << controller.process(24)
   sleep 0.1
   @emailreader_outputs << controller.process(25) # short press
   @emailreader_outputs << controller.process(22)
-  sleep 1.1
-  @emailreader_outputs << controller.process(23) # long press
+  sleep 0.1
+  @emailreader_outputs << controller.process(23) # short press
   @emailreader_outputs << controller.process(24)
   sleep 1.1
   @emailreader_outputs << controller.process(25) # long press
+  @emailreader_outputs << controller.process(22)
+  sleep 1.1
+  @emailreader_outputs << controller.process(23) # long press
   puts '----------------------------'
 end
 
@@ -175,6 +175,63 @@ def test_pluralsight_panel
   puts '----------------------------'
 end
 
+def test_trello_panel
+  controller = Controller.new(testing: true)
+  @trello_outputs = []
+  @trello_fixtures =
+    [:started_thread,
+     'xdotool key Left',
+     :started_thread,
+     'xdotool key Return',
+     :started_thread,
+     'xdotool key l',
+     :started_thread,
+     'xdotool key Down',
+     :started_thread,
+     'xdotool key Page_Down',
+     :started_thread,
+     'xdotool key 7',
+     :started_thread,
+     'result:  xdotool key Up',
+     :started_thread,
+     'result:  xdotool key Page_Up',
+     :started_thread,
+     'result:  xdotool key Right',
+     :started_thread,
+     'result:  xdotool key Escape']
+
+  @trello_outputs << controller.process(33)
+  sleep 0.3
+  @trello_outputs << controller.process(34) # short press, button 1
+  @trello_outputs << controller.process(33)
+  sleep 1.3
+  @trello_outputs << controller.process(34) # long press, button 1
+  @trello_outputs << controller.process(33)
+  sleep 2.3
+  @trello_outputs << controller.process(34) # extra long press, button 1
+  @trello_outputs << controller.process(35)
+  sleep 0.3
+  @trello_outputs << controller.process(36) # short press, button 2
+  @trello_outputs << controller.process(35)
+  sleep 1.3
+  @trello_outputs << controller.process(36) # long press, button 2
+  @trello_outputs << controller.process(35)
+  sleep 2.3
+  @trello_outputs << controller.process(36) # extra long press, button 2
+  @trello_outputs << controller.process(37)
+  sleep 0.3
+  @trello_outputs << controller.process(38) # short press, button 3
+  @trello_outputs << controller.process(37)
+  sleep 1.3
+  @trello_outputs << controller.process(38) # long press, button 3
+  @trello_outputs << controller.process(39)
+  sleep 0.3
+  @trello_outputs << controller.process(40) # short press, button 4
+  @trello_outputs << controller.process(39)
+  sleep 1.3
+  @trello_outputs << controller.process(40) # long press, button 4
+end
+
 def test_vimium_panel
   controller = Controller.new(testing: true)
   @vimium_outputs = []
@@ -193,7 +250,8 @@ def test_vimium_panel
      "5",
      :started_thread,
      "2",
-     "0"]
+     "0",
+     "xdotool key H"]
 
   @vimium_outputs << controller.process(27) # f pressed, wating for 4 numbers
   @vimium_outputs << controller.process(26)
@@ -215,6 +273,7 @@ def test_vimium_panel
   sleep 1.5
   @vimium_outputs << controller.process(27) # 2
   @vimium_outputs << controller.process(32) # 0
+  @vimium_outputs << controller.process(31) # H
 
   puts '----------------------------'
 end
@@ -238,6 +297,10 @@ expect_equal(@gnome_fixtures, @gnome_outputs)
 puts '***Pluralsight panel test'
 test_pluralsight_panel
 expect_equal(@pluralsight_fixtures, @pluralsight_outputs)
+
+puts '***Trello panel test'
+test_trello_panel
+expect_equal(@trello_fixtures, @trello_outputs)
 
 puts '***Vimium panel test'
 test_vimium_panel

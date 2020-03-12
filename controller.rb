@@ -26,6 +26,9 @@ class Controller
       emailreader_panel(value)
     elsif (26..32).cover?(value)
       vimium_panel(value)
+    elsif (33..40).cover?(value)
+      @vimium_state = :browse
+      trello_panel(value)
     end
   end
 
@@ -70,11 +73,11 @@ class Controller
     when 1 # button 2
       xdo_key 'Return'
     when 2 # button 3
-      setup_thread { long_press('xdo_key', 'Down', 'xdo_key', 'Page_Down', 0.5) }
+      setup_thread { long_press('xdo_key', 'Up', 'xdo_key', 'Page_Up', 0.5) }
     when 3 # button 3
       finish_thread
     when 4 # button 4
-      setup_thread { long_press('xdo_key', 'Up', 'xdo_key', 'Page_Up', 0.5) }
+      setup_thread { long_press('xdo_key', 'Down', 'xdo_key', 'Page_Down', 0.5) }
     when 5 # button 4
       finish_thread
     end
@@ -135,6 +138,29 @@ class Controller
     end
   end
 
+  def trello_panel(value)
+    value -= 33
+
+    case value
+    when 0 # button 1
+      setup_thread { extra_long_press('xdo_key', 'Left', 'Return', 'l', 1.0) }
+    when 1 # button 1
+      finish_thread
+    when 2 # button 2
+      setup_thread { extra_long_press('xdo_key', 'Down', 'Page_Down', '7', 1.0) }
+    when 3 # button 2
+      finish_thread
+    when 4 # button 3
+      setup_thread { long_press('xdo_key', 'Up', 'xdo_key', 'Page_Up', 1.0) }
+    when 5 # button 3
+      finish_thread
+    when 6 # button 4
+      setup_thread { long_press('xdo_key', 'Right', 'xdo_key', 'Escape', 1.0) }
+    when 7 # button 4
+      finish_thread
+    end
+  end
+
   def vimium_panel(value)
     value -= 26
     result = ''
@@ -157,17 +183,17 @@ class Controller
     elsif @vimium_state == :get_four_numbers
       case value
       when 0 # button 1
-        result = setup_thread { extra_long_press('1', '2', '3', 1.0) }
+        result = setup_thread { extra_long_press(nil, '1', '2', '3', 1.0) }
       when 1 # button 1
         result = finish_thread
         @number_string += result
       when 2 # button 2
-        result = setup_thread { extra_long_press('4', '5', '6', 1.0) }
+        result = setup_thread { extra_long_press(nil, '4', '5', '6', 1.0) }
       when 3 # button 2
         result = finish_thread
         @number_string += result
       when 4 # button 3
-        result = setup_thread { extra_long_press('7', '7', '9', 1.0) }
+        result = setup_thread { extra_long_press(nil, '7', '7', '9', 1.0) }
       when 5 # button 3
         result = finish_thread
         @number_string += result
@@ -198,7 +224,7 @@ class Controller
     result
   end
 
-  def extra_long_press(short, long, extra_long, switch_interval)
+  def extra_long_press(command, short, long, extra_long, switch_interval)
     started_at = Time.now.to_f
     result = ''
     repeat_threshold = 0.99
@@ -211,6 +237,9 @@ class Controller
     end
     if (Time.now.to_f - started_at) <= repeat_threshold
       result = short
+    end
+    unless command.nil?
+      result = send command, result
     end
     result
   end
