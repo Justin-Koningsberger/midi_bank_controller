@@ -38,10 +38,6 @@ class Reader
           puts e.backtrace
         end
         data = @input.gets_data
-        puts '---------------------'
-        puts "\n" + data.inspect
-        puts '---------------------'
-        # data[0] == 192: button. data[0] == 176: wah pedal
         next unless data[0] == 176
         raw =  data[1] || 0
         f.puts raw

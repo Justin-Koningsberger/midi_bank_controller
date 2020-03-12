@@ -8,6 +8,7 @@ class Controller
     @pluralsight_state = :navigate
     @vimium_state = :browse
     @number_string = ''
+    Thread.abort_on_exception = true
   end
 
   def process(value)
@@ -30,27 +31,23 @@ class Controller
 
   def chrome_panel(value)
     if value == 0 # button 1
-      puts 'Pages'
+      puts 'Pages' if @testing
       @chrome_state = :pages
     elsif value == 1 # button 1
-      puts 'Tabs'
+      puts 'Tabs' if @testing
       @chrome_state = :tabs
     elsif @chrome_state == :pages
       case value
       when 2 # button 2
         xdo_key 'Control_L+Alt_L+r'
       when 3 # button 3
-        setup_lp_thread('xdo_key', 'Page_Up', 'xdo_key', 'Up', 0.5)
-        :started_thread
+        setup_thread { long_press('xdo_key', 'Page_Up', 'xdo_key', 'Up', 0.5) }
       when 4 # button 3
-        @lock.unlock
-        @thr.value
+        finish_thread
       when 5 # button 4
-        setup_lp_thread('xdo_key', 'Page_Down', 'xdo_key', 'Down', 0.5)
-        :started_thread
+        setup_thread { long_press('xdo_key', 'Page_Down', 'xdo_key', 'Down', 0.5) }
       when 6 # button 4
-        @lock.unlock
-        @thr.value
+        finish_thread
       end
     elsif @chrome_state == :tabs
       case value
@@ -73,17 +70,13 @@ class Controller
     when 1 # button 2
       xdo_key 'Return'
     when 2 # button 3
-      setup_lp_thread('xdo_key', 'Down', 'xdo_key', 'Page_Down', 0.5)
-      :started_thread
+      setup_thread { long_press('xdo_key', 'Down', 'xdo_key', 'Page_Down', 0.5) }
     when 3 # button 3
-      @lock.unlock
-      @thr.value
+      finish_thread
     when 4 # button 4
-      setup_lp_thread('xdo_key', 'Up', 'xdo_key', 'Page_Up', 0.5)
-      :started_thread
+      setup_thread { long_press('xdo_key', 'Up', 'xdo_key', 'Page_Up', 0.5) }
     when 5 # button 4
-      @lock.unlock
-      @thr.value
+      finish_thread
     end
   end
 
@@ -94,29 +87,21 @@ class Controller
 
     case value
     when 0 # button 1
-      setup_lp_thread('xdo_key', 'Return', 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
-      :started_thread
+      setup_thread { long_press('xdo_key', 'Return', 'activate_window', GNOME_WINDOWS[value + 1], 0.9) }
     when 1 # button 1
-      @lock.unlock
-      @thr.value
+      finish_thread
     when 2 # button 2
-      setup_lp_thread('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
-      :started_thread
+      setup_thread { long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9) }
     when 3 # button 2
-      @lock.unlock
-      @thr.value
+      finish_thread
     when 4 # button 3
-      setup_lp_thread('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
-      :started_thread
+      setup_thread { long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9) }
     when 5 # button 3
-      @lock.unlock
-      @thr.value
+      finish_thread
     when 6 # button 4
-      setup_lp_thread('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9)
-      :started_thread
+      setup_thread { long_press('activate_window', GNOME_WINDOWS[value], 'activate_window', GNOME_WINDOWS[value + 1], 0.9) }
     when 7 # button 4
-      @lock.unlock
-      @thr.value
+      finish_thread
     end
   end
 
@@ -124,10 +109,10 @@ class Controller
     value -= 15
 
     if value == 0 # button 1
-      puts 'Navigate'
+      puts 'Navigate' if @testing
       @pluralsight_state = :navigate
     elsif value == 1 # button 1
-      puts 'Alt state'
+      puts 'Alt state' if @testing
       @pluralsight_state = :alt_state
     elsif @pluralsight_state == :navigate
       case value
@@ -158,41 +143,33 @@ class Controller
       @number_string = ''
       case value
       when 1 # button 1
-        puts 'Enter numbers now'
+        puts 'Enter numbers now' if @testing
         @vimium_state = :get_four_numbers
         xdo_key 'f'
       when 3 # button 2
-        puts 'Enter numbers now'
+        puts 'Enter numbers now' if @testing
         @vimium_state = :get_four_numbers
         xdo_key 'F'
       when 5 # button 3
-        puts 'Enter numbers now'
-        @vimium_state = :get_four_numbers
         xdo_key 'H'
       end
 
     elsif @vimium_state == :get_four_numbers
       case value
       when 0 # button 1
-        setup_elp_thread('1', '2', '3', 1.0)
-        result = :started_thread
+        result = setup_thread { extra_long_press('1', '2', '3', 1.0) }
       when 1 # button 1
-        @lock.unlock
-        result = @thr.value
+        result = finish_thread
         @number_string += result
       when 2 # button 2
-        setup_elp_thread('4', '5', '6', 1.0)
-        result = :started_thread
+        result = setup_thread { extra_long_press('4', '5', '6', 1.0) }
       when 3 # button 2
-        @lock.unlock
-        result = @thr.value
+        result = finish_thread
         @number_string += result
       when 4 # button 3
-        setup_elp_thread('7', '8', '9', 1.0)
-        result = :started_thread
+        result = setup_thread { extra_long_press('7', '7', '9', 1.0) }
       when 5 # button 3
-        @lock.unlock
-        result = @thr.value
+        result = finish_thread
         @number_string += result
       when 6 # button 4
         result = '0'
@@ -238,35 +215,28 @@ class Controller
     result
   end
 
-  def setup_lp_thread(command_s, short, command_l, long, interval)
-    return 'Waiting for key up' if @lock.locked?
+  def setup_thread
     @lock.lock
-    Thread.abort_on_exception = true
     @thr = Thread.new do |_thread|
-      long_press(command_s, short, command_l, long, interval)
+      yield
     end
+    :started_thread
   end
 
-  def setup_elp_thread(short, long, extra_long, interval)
-    return 'Waiting for key up' if @lock.locked?
-    @lock.lock
-    Thread.abort_on_exception = true
-    @thr = Thread.new do |_thread|
-      extra_long_press(short, long, extra_long, interval)
-    end
+  def finish_thread
+    @lock.unlock
+    @thr.value
   end
 
   def process_numbers(string)
-    puts "*********  #{string}  ********"
+    puts "*********  #{string}  ********" if @testing
     if string[0,2] == '00'
       letter = convert(string[2,4].to_i)
       xdo_key(letter)
     else
-      letter_one = convert(string[0,2].to_i)
-      letter_two = convert(string[2,4].to_i)
-      xdo_key(letter_one)
-      sleep 0.1
-      xdo_key(letter_two)
+      one = convert(string[0,2].to_i)
+      two = convert(string[2,4].to_i)
+      xdo_key(one + two)
     end
     @vimium_state = :browse
   end
