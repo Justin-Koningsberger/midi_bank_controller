@@ -8,6 +8,10 @@ class Controller
     @pluralsight_state = :navigate
     @vimium_state = :browse
     @number_string = ''
+    @kill_scroller = false
+    @pause_scroller = true
+    @intervals = [-0.1, -0.25, -0.5, -1, -2, -3, 0, 3, 2, 1, 0.5, 0.25, 0.1]
+    @scroll_speed = 6
     Thread.abort_on_exception = true
   end
 
@@ -29,6 +33,9 @@ class Controller
     elsif (33..40).cover?(value)
       @vimium_state = :browse
       trello_panel(value)
+    elsif (41..44).cover?(value)
+      @vimium_state = :browse
+      scrolling_panel(value)
     end
   end
 
@@ -138,6 +145,33 @@ class Controller
     end
   end
 
+  def scrolling_panel(value)
+    setup_thread { scrolling } unless @lock.locked?
+
+    value -= 41
+
+    case value
+    when 0 # button 1, down, increase scrolling
+      @pause_scroller = false
+      @scroll_speed -= 1 unless @scroll_speed == 0
+      "scroll vec: #{@intervals[@scroll_speed]}"
+    when 1 # button 2, up, decrease scrolling
+      @pause_scroller = false
+      @scroll_speed += 1 unless @scroll_speed == @intervals.size - 1
+      "scroll vec: #{@intervals[@scroll_speed]}"
+    when 2 # button 3, pause
+      @pause_scroller = !@pause_scroller
+      "pause_scroller is #{@pause_scroller}"
+    when 3 # button 4, reset
+      @scroll_speed = 6
+      @kill_scroller = true
+      @pause_scroller = true
+      finish_thread
+      @kill_scroller = false
+      'scroll thread reset'
+    end
+  end
+
   def trello_panel(value)
     value -= 33
 
@@ -242,6 +276,23 @@ class Controller
       result = send command, result
     end
     result
+  end
+
+  def scrolling
+    last_scroll = Time.now.to_f
+    while !@kill_scroller
+      unless @pause_scroller
+        sleep 0.05
+
+        since_last_scroll = Time.now.to_f - last_scroll
+        vec = @intervals[@scroll_speed] # scroll speed and direction
+        puts vec
+        if since_last_scroll > vec.abs
+          xdotool("click #{vec.positive? ? 4 : 5}")
+          last_scroll = Time.now.to_f
+        end
+      end
+    end
   end
 
   def setup_thread

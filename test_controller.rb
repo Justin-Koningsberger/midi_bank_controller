@@ -232,6 +232,39 @@ def test_trello_panel
   @trello_outputs << controller.process(40) # long press, button 4
 end
 
+def test_scrolling_panel
+  controller = Controller.new(testing: true)
+  @scrolling_outputs = []
+  @scrolling_fixtures =
+    ["scroll vec: -3",
+     "scroll vec: -2",
+     "scroll vec: -1",
+     "pause_scroller is true",
+     "pause_scroller is false",
+     "scroll vec: -0.5",
+     "scroll thread reset",
+     "scroll vec: 3",
+     "scroll vec: 2",
+     "scroll vec: 1",
+     "scroll vec: 0.5",
+     "scroll vec: 0.25",
+     "scroll vec: 0.1"]
+
+  @scrolling_outputs << controller.process(41) # scroll down once per 3 seconds
+  @scrolling_outputs << controller.process(41) # scroll down once per 2 seconds
+  @scrolling_outputs << controller.process(41) # scroll down once per second
+  @scrolling_outputs << controller.process(43) # pause scroller
+  @scrolling_outputs << controller.process(43) # unpause scroller
+  @scrolling_outputs << controller.process(41) # scroll down every half second
+  @scrolling_outputs << controller.process(44) # reset scroller
+  @scrolling_outputs << controller.process(42) # scroll up once per 3 seconds
+  @scrolling_outputs << controller.process(42) # scroll up once per 2 seconds
+  @scrolling_outputs << controller.process(42) # scroll up once per second
+  @scrolling_outputs << controller.process(42) # scroll up every half second
+  @scrolling_outputs << controller.process(42) # scroll up every fourth of a second
+  @scrolling_outputs << controller.process(42) # scroll up every tenth of a second
+end
+
 def test_vimium_panel
   controller = Controller.new(testing: true)
   @vimium_outputs = []
@@ -301,6 +334,10 @@ expect_equal(@pluralsight_fixtures, @pluralsight_outputs)
 puts '***Trello panel test'
 test_trello_panel
 expect_equal(@trello_fixtures, @trello_outputs)
+
+puts '***Scrolling panel test'
+test_scrolling_panel
+expect_equal(@scrolling_fixtures, @scrolling_outputs)
 
 puts '***Vimium panel test'
 test_vimium_panel
