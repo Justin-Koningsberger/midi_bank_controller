@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'unimidi'
 require 'pry'
 require 'pp'
@@ -19,7 +21,7 @@ end
 def test_conversion
   controller = Controller.new(testing: true)
   @conversion_outputs = []
-  @conversion_fixtures = ['L', 'E', 'E', 'T', 'Z']
+  @conversion_fixtures = %w[L E E T Z]
 
   @conversion_outputs << controller.convert(12)
   @conversion_outputs << controller.convert(5)
@@ -236,19 +238,19 @@ def test_scrolling_panel
   controller = Controller.new(testing: true)
   @scrolling_outputs = []
   @scrolling_fixtures =
-    ["scroll vec: -3",
-     "scroll vec: -2",
-     "scroll vec: -1",
-     "pause_scroller is true",
-     "pause_scroller is false",
-     "scroll vec: -0.5",
-     "scroll thread reset",
-     "scroll vec: 3",
-     "scroll vec: 2",
-     "scroll vec: 1",
-     "scroll vec: 0.5",
-     "scroll vec: 0.25",
-     "scroll vec: 0.1"]
+    ['scroll vec: -3',
+     'scroll vec: -2',
+     'scroll vec: -1',
+     'pause_scroller is true',
+     'pause_scroller is false',
+     'scroll vec: -0.5',
+     'scroll thread reset',
+     'scroll vec: 3',
+     'scroll vec: 2',
+     'scroll vec: 1',
+     'scroll vec: 0.5',
+     'scroll vec: 0.25',
+     'scroll vec: 0.1']
 
   @scrolling_outputs << controller.process(41) # scroll down once per 3 seconds
   @scrolling_outputs << controller.process(41) # scroll down once per 2 seconds
@@ -269,22 +271,22 @@ def test_vimium_panel
   controller = Controller.new(testing: true)
   @vimium_outputs = []
   @vimium_fixtures =
-    ["xdotool key f",
+    ['xdotool key f',
      :started_thread,
-     "1",
+     '1',
      :started_thread,
-     "2",
-     "0",
+     '2',
+     '0',
      :started_thread,
-     "5",
-     "xdotool key f",
-     "0",
+     '5',
+     'xdotool key f',
+     '0',
      :started_thread,
-     "5",
+     '5',
      :started_thread,
-     "2",
-     "0",
-     "xdotool key H"]
+     '2',
+     '0',
+     'xdotool key H']
 
   @vimium_outputs << controller.process(27) # f pressed, wating for 4 numbers
   @vimium_outputs << controller.process(26)

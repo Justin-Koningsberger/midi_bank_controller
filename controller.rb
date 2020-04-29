@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class Controller
   attr_reader :chrome_state, :testing
 
@@ -236,9 +238,7 @@ class Controller
         @number_string += result
       end
 
-      if @number_string.size == 4
-        process_numbers(@number_string)
-      end
+      process_numbers(@number_string) if @number_string.size == 4
       result
     end
   end
@@ -269,28 +269,24 @@ class Controller
       result = long if long_press
       result = extra_long if extra_long_press
     end
-    if (Time.now.to_f - started_at) <= repeat_threshold
-      result = short
-    end
-    unless command.nil?
-      result = send command, result
-    end
+    result = short if (Time.now.to_f - started_at) <= repeat_threshold
+    result = send command, result unless command.nil?
     result
   end
 
   def scrolling
     last_scroll = Time.now.to_f
-    while !@kill_scroller
-      unless @pause_scroller
-        sleep 0.05
+    until @kill_scroller
+      next if @pause_scroller
 
-        since_last_scroll = Time.now.to_f - last_scroll
-        vec = @intervals[@scroll_speed] # scroll speed and direction
-        puts vec
-        if since_last_scroll > vec.abs
-          xdotool("click #{vec.positive? ? 4 : 5}")
-          last_scroll = Time.now.to_f
-        end
+      sleep 0.05
+
+      since_last_scroll = Time.now.to_f - last_scroll
+      vec = @intervals[@scroll_speed] # scroll speed and direction
+      puts vec
+      if since_last_scroll > vec.abs
+        xdotool("click #{vec.positive? ? 4 : 5}")
+        last_scroll = Time.now.to_f
       end
     end
   end
@@ -310,19 +306,21 @@ class Controller
 
   def process_numbers(string)
     puts "*********  #{string}  ********" if @testing
-    if string[0,2] == '00'
-      letter = convert(string[2,4].to_i)
+    if string[0, 2] == '00'
+      letter = convert(string[2, 4].to_i)
       xdo_key(letter)
     else
-      one = convert(string[0,2].to_i)
-      two = convert(string[2,4].to_i)
+      one = convert(string[0, 2].to_i)
+      two = convert(string[2, 4].to_i)
       xdo_key(one + two)
     end
     @vimium_state = :browse
   end
 
   def convert(integer)
-    raise 'This number lies outside the alphabet' unless (01..26).cover? integer
+    unless (0o1..26).cover? integer
+      raise 'This number lies outside the alphabet'
+    end
 
     integer += 64 # get in capital range, 65 == 'A'
     integer.chr
