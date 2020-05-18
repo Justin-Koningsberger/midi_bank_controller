@@ -13,7 +13,7 @@ class Controller
     @kill_scroller = false
     @pause_scroller = true
     @intervals = [-0.1, -0.25, -0.5, -1, -2, -3, 0, 3, 2, 1, 0.5, 0.25, 0.1]
-    @scroll_speed = 6
+    @scroll_speed = @intervals.index(0)
     Thread.abort_on_exception = true
   end
 
@@ -165,7 +165,7 @@ class Controller
       @pause_scroller = !@pause_scroller
       "pause_scroller is #{@pause_scroller}"
     when 3 # button 4, reset
-      @scroll_speed = 6
+      @scroll_speed = @intervals.index(0)
       @kill_scroller = true
       @pause_scroller = true
       finish_thread
@@ -277,9 +277,8 @@ class Controller
   def scrolling
     last_scroll = Time.now.to_f
     until @kill_scroller
-      next if @pause_scroller
-
       sleep 0.05
+      next if @pause_scroller
 
       since_last_scroll = Time.now.to_f - last_scroll
       vec = @intervals[@scroll_speed] # scroll speed and direction
